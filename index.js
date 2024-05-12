@@ -13,7 +13,7 @@ require('dotenv').config()
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tju8r4h.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 
@@ -33,13 +33,37 @@ async function run() {
             const result = await jobCollection.find().toArray()
             res.send(result)
         })
+        app.get('/jobs/:id',async (req,res)=>{
+             const id=req.params.id;
+             const query={_id: new ObjectId(id)}
+             const result=await jobCollection.findOne(query)
+             res.send(result)
+        })
         app.get('/jobs/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await jobCollection.findOne(query);
             res.send(result)
         })
-       
+        app.post('/jobs', async (req, res) => {
+            const job = req.body;
+            const result = await jobCollection.insertOne(job);
+            res.send(result);
+        })
+        app.get('/search', async (req,res)=>{
+
+               const search='';
+               if(req.query.q){
+
+                  search=req.query.q
+               }
+               console.log(search)
+               const result=await jobCollection.find({
+                   title:{$regex:search , $options:'i'}
+               }).toArray()
+                
+               res.send(result)
+        })
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
