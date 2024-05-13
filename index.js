@@ -46,6 +46,13 @@ async function run() {
             const result = await jobCollection.findOne(query);
             res.send(result)
         })
+        app.delete('/jobs/:id',async (req,res)=>{
+            const id=req.params.id;
+            console.log(id);
+            const query={_id: new ObjectId(id)}
+            const result =await jobCollection.deleteOne(query)
+            res.send(result)
+        })
         app.put('/jobs/:id',async (req,res)=>{
             const id=req.params.id;
             console.log(id)
