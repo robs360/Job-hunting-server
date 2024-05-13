@@ -53,6 +53,27 @@ async function run() {
             const result =await jobCollection.deleteOne(query)
             res.send(result)
         })
+        app.put('/job/:id',async (req,res)=>{
+             const id=req.params.id;
+             const update=req.body;
+             console.log(update)
+             const query={_id:new ObjectId(id)}
+             const options={upsert:true}
+             const updateUser={
+                $set:{
+                       name:update.name,
+                       email:update.email,
+                       catigory:update.category,
+                       post:update.post,
+                       descrip:update.description,
+                       title:update.title,
+                       date:update.lastDate,
+                       salary:update.salary
+                }
+             }
+             const result=await jobCollection.updateOne(query,updateUser,options)
+             res.send(result)
+        })
         app.put('/jobs/:id',async (req,res)=>{
             const id=req.params.id;
             console.log(id)
@@ -75,9 +96,8 @@ async function run() {
         })
         app.get('/search', async (req,res)=>{
 
-               const search='';
+               let search='';
                if(req.query.q){
-
                   search=req.query.q
                }
                console.log(search)
