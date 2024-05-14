@@ -4,16 +4,17 @@ const app = express()
 const port = process.env.PORT || 5000
 
 // middle Ware
-app.use(cors())
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 app.use(express.json())
 require('dotenv').config()
 
 
+app.use(cors({ origin: 'https://job-hunter-3fec4.web.app',
+credentials:true }));
 
 
 
 
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tju8r4h.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 
@@ -30,6 +31,16 @@ async function run() {
 
         const jobCollection = client.db('jobdb').collection('jobs')
         const applicantCollection = client.db('jobdb').collection('apply')
+        // token api
+
+        // app.post('/jwt',async (req,res)=>{
+        //      const user=req.body
+        //      console.log(user);
+        //      const token=jwt.sign(user, process.env.DB_TOKEN, {expiresIn:'1h'})
+        //      res.send(token); 
+        // })
+
+        // services api
         app.get('/jobs', async (req, res) => {
             const result = await jobCollection.find().toArray()
             res.send(result)
@@ -40,12 +51,12 @@ async function run() {
              const result=await jobCollection.findOne(query)
              res.send(result)
         })
-        app.get('/jobs/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) };
-            const result = await jobCollection.findOne(query);
-            res.send(result)
-        })
+        // app.get('/jobs/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const query = { _id: new ObjectId(id) };
+        //     const result = await jobCollection.findOne(query);
+        //     res.send(result)
+        // })
         app.delete('/jobs/:id',async (req,res)=>{
             const id=req.params.id;
             console.log(id);
@@ -81,12 +92,10 @@ async function run() {
             console.log(update)
             const query = { _id: new ObjectId(id) };
             const options={upsert:true};
-            const updateUser={
-                $set:{
-                    applicant:update.app
-                }
-            }
-            const result=await jobCollection.updateOne(query,updateUser,options)
+            const updateDoc = {
+                $inc: { applicant: 1 },
+              };
+            const result=await jobCollection.updateOne(query,updateDoc)
             res.send(result)
         })
         app.post('/jobs', async (req, res) => {
