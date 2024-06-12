@@ -106,8 +106,8 @@ async function run() {
         app.get('/search', async (req,res)=>{
 
                let search='';
-               if(req.query.q){
-                  search=req.query.q
+               if(req.query.q){  
+                  search=req.query.q 
                }
                console.log(search)
                const result=await jobCollection.find({
